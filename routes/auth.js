@@ -15,8 +15,13 @@ router.get("/signup", (req, res, next) => {
 // the imports, get and post route remain untouched for now
 
 router.get("/userProfile/:username", async (req, res) => {
-  const user = await User.findOne({ username: req.params.username });
-  res.render("auth/profile", user);
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    res.render("auth/profile", user);
+  } catch (error) {
+    console.log(error);
+    res.redirect("/");
+  }
 });
 
 router.post("/signup", async (req, res, next) => {
@@ -32,13 +37,18 @@ router.post("/signup", async (req, res, next) => {
 
     .then((hashedPassword) => {
       return hashedPassword;
-      })
+    })
 
     .catch((error) => next(error));
 
+  try {
     await User.create({ username, email, passwordHash: hashedPassword });
 
-  res.redirect(`/userProfile/${username}`);
+    res.redirect(`/userProfile/${username}`);
+  } catch (error) {
+    console.log(error);
+    res.redirect("/");
+  }
 });
 
 module.exports = router;
